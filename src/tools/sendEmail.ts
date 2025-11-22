@@ -1,13 +1,14 @@
 import type { Tool } from 'fastmcp';
 import { z } from 'zod';
 import { useLogger } from '../utils/logger';
-import { Resend } from 'resend';
+import { sendEmailHelper } from '../utils/sendEmailHelper';
 
+// 单个邮件发送工具
 const name = 'sendEmail';
-const description = 'Send an email using Resend service';
+const description = 'Send an email to a single recipient using Resend service';
 const parameters = z.object({
   from: z.string().describe('Sender email name, e.g. "John Doe" or "No Reply"'),
-  to: z.string().email().or(z.array(z.string().email())).describe('Recipient email address(es)'),
+  to: z.string().email().describe('Recipient email address'),
   subject: z.string().describe('Email subject'),
   text: z.string().optional().describe('Plain text content of the email'),
   html: z.string().optional().describe('HTML content of the email'),
@@ -22,59 +23,11 @@ const sendEmail: Tool<any, z.ZodType<typeof parameters._type>> = {
     const { log } = context;
     const logger = useLogger(log);
 
-    // 从环境变量获取API密钥和默认发件人
-    const apiKey = process.env.RESEND_API_KEY;
-    const emailHost = process.env.EMAIL_HOST;
-
-    if (!apiKey) {
-      throw new Error('RESEND_API_KEY environment variable is not set');
-    }
-
-    if (!emailHost) {
-      throw new Error('EMAIL_HOST environment variable is not set');
-    }
-
-    if (!from) {
-      throw new Error(
-        'From parameter must be set'
-      );
-    }
-
-    if(!text && !html) {
-      throw new Error(
-        'Either text or html content must be provided'
-      );
-    }
-
-    const resend = new Resend(apiKey);
-
-    try {
-      logger.info(
-        `Sending email to ${
-          Array.isArray(to) ? to.join(', ') : to
-        } with subject "${subject}"`
-      );
-
-      const result = await resend.emails.send({
-        from: `${from} <no-reply@${emailHost}>`,
-        to: Array.isArray(to) ? to : [to],
-        subject,
-        text,
-        html,
-        react: null,
-      });
-
-      logger.info(`Email sent successfully with ID: ${result.data?.id}`);
-      return JSON.stringify({ success: true, id: result.data?.id });
-    } catch (error) {
-      logger.error(
-        `Failed to send email: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-      throw error;
-    }
+    const result = await sendEmailHelper(from, to, subject, text, html, logger);
+    return JSON.stringify(result);
   },
 };
 
 export { sendEmail };
+
+// 注意：sendEmailBatch已被移到单独的文件 sendEmailBatch.ts 中

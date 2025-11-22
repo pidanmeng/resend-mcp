@@ -1,6 +1,6 @@
 {
   "name": "@pidanmoe/resend-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "module": "dist/index.js",
   "preferGlobal": true,
   "bin": {
@@ -21,9 +21,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "fastmcp": "^3.8.2",
     "resend": "4.8.0",
