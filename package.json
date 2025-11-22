@@ -16,10 +16,14 @@
   },
   "keywords": [
     "mcp",
-    "fastmcp"
+    "fastmcp",
+    "resend"
   ],
   "author": "",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "fastmcp": "^3.8.2",
     "resend": "4.8.0",
